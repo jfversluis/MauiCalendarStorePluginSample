@@ -1,24 +1,29 @@
-﻿namespace MauiCalendarStorePluginSample
+﻿using Plugin.Maui.CalendarStore;
+
+namespace MauiCalendarStorePluginSample
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async void OnCounterClicked(object sender, EventArgs e)
         {
-            count++;
+            var calendars = await CalendarStore.Default.GetCalendars();
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+            foreach (var calendar in calendars)
+            {
+                await DisplayAlert("Calendars", $"{calendar.Name} ({calendar.Id})", "OK");
+            }
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+            var events = await CalendarStore.Default.GetEvents(startDate: DateTimeOffset.Now.AddDays(-1), endDate: DateTimeOffset.Now.AddDays(1));
+            
+            foreach (var ev in events)
+            {
+                await DisplayAlert("Events", $"{ev.Title} ({ev.Id}) Start: {ev.StartDate}", "OK");
+            }
         }
     }
 
